@@ -1,0 +1,13 @@
+{
+  "bc95.expectAT|block": "sende AT %command und empfange",
+  "bc95.expectOK|block": "prüfe AT %command|Resultat OK?",
+  "bc95.init|block": "Initialisiere BC95|TX %tx|RX %rx|mit Baudrate %rate",
+  "bc95.pushAT|block": "sende AT %command",
+  "bc95.sendNumber|block": "UDP|sende Zahlennachricht|Name %key|Wert %n",
+  "bc95.sendOk|block": "UDP senden erfolgreich?",
+  "bc95.sendString|block": "UDP|sende Textnachricht|Name %key|Wert %n",
+  "bc95.setAPN|block": "setze APN %apn|Benutzer %user|Passwort %password",
+  "bc95.setServer|block": "setze UDP IP |Adresse %host|Port %port",
+  "bc95|block": "BC95",
+  "{id:category}Bc95": "BC95"
+}

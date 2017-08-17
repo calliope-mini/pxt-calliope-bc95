@@ -1,0 +1,19 @@
+{
+    "name": "calliope-bc95",
+    "version": "0.0.1",
+    "description": "NB-IoT BC95 Module",
+    "license": "MIT",
+    "dependencies": {
+        "core": "file:../core"
+    },
+    "files": [
+        "README.md",
+        "bc95.ts",
+        "_locales/de/calliope-bc95-jsdoc-strings.json",
+        "_locales/de/calliope-bc95-strings.json"
+    ],
+    "testFiles": [
+        "tests.ts"
+    ],
+    "public": true
+}
