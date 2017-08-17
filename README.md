@@ -5,7 +5,7 @@ It can be used by the [PXT Calliope mini editor](https://pxt.calliope.cc/). Shou
 with PXT for Micro:bit.
 
 More information on the module can be found on the [Quectel website](http://www.quectel.com/product/bc95.htm).
-It is used in conjunction with an [evaluation kit])(http://www.quectel.com/product/gsmevb.htm).
+It is used in conjunction with an [evaluation kit](http://www.quectel.com/product/gsmevb.htm).
 
 The code may be used as a starting point for similar AT based systems.
 
