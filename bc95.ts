@@ -5,6 +5,7 @@
 //% weight=2 color=#A8BCBC
 //% advanced=true
 namespace bc95 {
+    // enabling DEBUG allows to follow the AT flow on the US
     const DEBUG = true;
 
     const TX = SerialPin.C17;
@@ -91,12 +92,18 @@ namespace bc95 {
         basic.pause(100);
         log("+++", "AT" + command);
         serial.writeString("\r\nAT" + command + "\r\n");
+        return receiveResponse((line: string) => {
+            return line == "OK\r" || line == "ERROR\r";
+        });
+    }
+
+    export function receiveResponse(cond: (line: string) => boolean): Array<string> {
         let line = "";
         let received: Array<string> = [];
         do {
             line = serial.readLine();
             if (line.length > 1) received.push(line.substr(0, line.length - 1));
-        } while (!(line.compare("ERROR\r") == 0 || line.compare("OK\r") == 0));
+        } while (!cond(line));
         logArray("---", received);
         return received;
     }
@@ -112,7 +119,7 @@ namespace bc95 {
     //% parts="bc95"
     export function expectOK(command: string): boolean {
         let response = sendAT(command);
-        return response[response.length - 1].compare("OK") == 0;
+        return response[response.length - 1] == "OK";
     }
 
     /**
@@ -138,12 +145,13 @@ namespace bc95 {
     /**
      * Send the actual message, encoded.
      */
-    function sendUDP(message: string): boolean {
+    function sendUDP(message: string, receivePort: number = 44567): boolean {
         let sendok = false;
         // open the socket and remember the socket number
-        let response = sendAT("+NSOCR,DGRAM,17,4587,0");
-        if (response[response.length - 1].compare("OK") == 0) {
+        let response = sendAT("+NSOCR=DGRAM,17,"+receivePort+",1");
+        if (response[response.length - 1] == "OK") {
             let socket = response[0];
+            message = "{\"id\":\""+bc95.getSerialNumber()+"\",\"p\":"+message+"}";
             // send UDP packet
             sendok = expectOK("+NSOST=" + socket + "," + SERVER + "," + PORT + "," + message.length + "," + stringToHex(message));
             // close socket

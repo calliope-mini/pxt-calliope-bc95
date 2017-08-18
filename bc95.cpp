@@ -23,4 +23,14 @@ namespace bc95 {
       uBit.serial.redirect(USBTX, USBRX);
       uBit.serial.baud(MICROBIT_SERIAL_DEFAULT_BAUD_RATE);
     }
+
+    /**
+     * Get the serial number of this device;
+     */
+    //% weight=10;
+    StringData *getSerialNumber() {
+      char tmp[9];
+      snprintf(tmp, 9, "%8lx", microbit_serial_number());
+      return ManagedString(tmp).leakData();
+    }
 }
