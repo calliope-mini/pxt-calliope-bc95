@@ -13,7 +13,6 @@ function assert(msg: string, cond: boolean) {
 }
 
 bc95.init(SerialPin.C17, SerialPin.C16, BaudRate.BaudRate9600);
-bc95.setReceiveBufferSize(100);
 
 
 assert("modem working",
@@ -41,7 +40,7 @@ assert("check network stats",
 assert("check PDP context",
     bc95.sendAT("+CGDCONT?")[0] == "+CGDCONT:0,\"IP\",\"internet.nbiot.telekom.de.MNC040.MCC901.GPRS\",,0,0");
 assert("check address",
-    bc95.sendAT("+CGPADDR")[0] == "+CGPADDR:0,10.251.192.39");
+    bc95.sendAT("+CGPADDR")[0].substr(0,9) == "+CGPADDR:");
 assert("check band",
     bc95.sendAT("+NBAND?")[0] == "+NBAND:8");
 assert("ping external server",

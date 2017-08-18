@@ -1,21 +1,24 @@
 {
-    "name": "calliope-bc95",
+    "name": "pxt-calliope-bc95",
     "version": "0.0.1",
     "description": "NB-IoT BC95 Module",
     "license": "MIT",
     "dependencies": {
-        "core": "file:../core"
+        "core": "*"
     },
     "files": [
         "README.md",
-        "bc95.ts",
         "bc95.cpp",
-        "shims.d.ts",
+        "bc95.ts",
         "_locales/de/calliope-bc95-jsdoc-strings.json",
         "_locales/de/calliope-bc95-strings.json"
     ],
     "testFiles": [
         "tests.ts"
     ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/calliope-mini/pxt-calliope-bc95.git"
+    },
     "public": true
 }

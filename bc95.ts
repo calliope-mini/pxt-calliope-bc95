@@ -12,11 +12,11 @@ namespace bc95 {
     const RX = SerialPin.C16;
     const BAUD = BaudRate.BaudRate9600;
 
-    let SERVER = "46.23.86.61";
+    let SERVER = "";
     let PORT = 44567;
     let APN = "internet.nbiot.telekom.de";
-    let USER = "internet";
-    let PASS = "sim";
+    let USER = "";
+    let PASS = "";
     let ERROR = false;
 
     /**
@@ -30,6 +30,13 @@ namespace bc95 {
     //% parts="bc95"
     export function init(tx: SerialPin, rx: SerialPin, rate: BaudRate): void {
         serial.redirect(tx, rx, rate);
+        setReceiveBufferSize(100);
+        expectOK("+CFUN=1");
+        expectOK("+COPS=1,2,\"26201\"");
+        for (let i = 0; i < 6; i++) {
+            if(bc95.sendAT("+CGATT?")[0] == "+CGATT:1") break;
+            basic.pause(1000);
+        }
     }
 
     /**
@@ -209,4 +216,13 @@ namespace bc95 {
         serial.redirect(TX, RX, BAUD);
         basic.pause(100);
     }
+
+    //% shim=bc95::setReceiveBufferSize
+    export function setReceiveBufferSize(size: number) {}
+
+    //% shim=bc95::resetSerial
+    export function resetSerial() {}
+
+    //% shim=bc95::getSerialNumber
+    export function getSerialNumber(): string { return "ABCDEF00"; }
 }

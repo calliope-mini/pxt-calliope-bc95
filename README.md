@@ -27,7 +27,16 @@ The socat server should show something like this:
 {"test":"value 123"}< 2017/08/18 21:06:26.298899  length=12 from=0 to=11
 ```
 
+## Example
 
+![Example Code](example.png)
+
+```
+$ socat -vvv PIPE udp-recvfrom:5883,fork
+< 2017/08/19 01:50:09.881710  length=47 from=0 to=46
+{"id":"bc9ab239","p":{"Hello":"Calliope mini"}}
+
+```
 
 ## Meta
 
