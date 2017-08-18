@@ -5,6 +5,12 @@
 //% weight=2 color=#A8BCBC
 //% advanced=true
 namespace bc95 {
+    const DEBUG = true;
+
+    const TX = SerialPin.C17;
+    const RX = SerialPin.C16;
+    const BAUD = BaudRate.BaudRate9600;
+
     let SERVER = "46.23.86.61";
     let PORT = 44567;
     let APN = "internet.nbiot.telekom.de";
@@ -83,6 +89,7 @@ namespace bc95 {
 
     export function sendAT(command: string): Array<string> {
         basic.pause(100);
+        log("+++", "AT" + command);
         serial.writeString("\r\nAT" + command + "\r\n");
         let line = "";
         let received: Array<string> = [];
@@ -90,6 +97,7 @@ namespace bc95 {
             line = serial.readLine();
             if (line.length > 1) received.push(line.substr(0, line.length - 1));
         } while (!(line.compare("ERROR\r") == 0 || line.compare("OK\r") == 0));
+        logArray("---", received);
         return received;
     }
 
@@ -152,7 +160,7 @@ namespace bc95 {
     //% blockId=bc95_sendOk block="UDP send success?"
     //% parts="bc95"
     export function sendOk(): boolean {
-        if(ERROR) {
+        if (ERROR) {
             ERROR = false;
             return false;
         } else return true;
@@ -170,4 +178,27 @@ namespace bc95 {
         return r;
     }
 
+    // debug functions
+    export function log(prefix: string, message: string): void {
+        if (!DEBUG) return;
+        basic.pause(100);
+        resetSerial();
+        console.log(prefix + " " + message);
+        basic.pause(100);
+        serial.redirect(TX, RX, BAUD);
+        basic.pause(100);
+    }
+
+    export function logArray(prefix: string, lines: Array<string>): void {
+        if (!DEBUG) return;
+        basic.pause(100);
+        resetSerial();
+        if (lines.length > 1) console.log(prefix + " (" + lines.length + " lines)");
+        for (let i = 0; i < lines.length; i++) {
+            console.log(prefix + " " + lines[i]);
+        }
+        basic.pause(100);
+        serial.redirect(TX, RX, BAUD);
+        basic.pause(100);
+    }
 }

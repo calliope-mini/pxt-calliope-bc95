@@ -9,6 +9,8 @@
     "files": [
         "README.md",
         "bc95.ts",
+        "bc95.cpp",
+        "shims.d.ts",
         "_locales/de/calliope-bc95-jsdoc-strings.json",
         "_locales/de/calliope-bc95-strings.json"
     ],
