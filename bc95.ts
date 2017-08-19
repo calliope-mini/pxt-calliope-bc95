@@ -27,7 +27,7 @@ namespace bc95 {
      * @param rate the new baud rate, eg: BaudRate.BaudRate9600
      */
     //% weight=210
-    //% blockId=bc95_init block="initialize bc95|TX %tx|RX %rx|at baud rate %rate"
+    //% blockId=bc95_init block="initialize BC95|TX %tx|RX %rx|at baud rate %rate"
     //% blockExternalInputs=1
     //% parts="bc95"
     export function init(tx: SerialPin, rx: SerialPin, rate: BaudRate): void {

@@ -1,6 +1,7 @@
 {
   "bc95": "Funktionen für das NB-IoT Modul BC95",
   "bc95.attach": "Verbinde NB-IoT Netzwerk.",
+  "bc95.enableDebug": "Starte AT-Kommando Debugausgabe.",
   "bc95.expectAT": "Sende ein AT Kommando an das Modul. Nur den Befehl, ohne den AT Prefix, z.B. AT(\"+CIMI\"). Gibt die erste Zeile der Antwort des Modules zurück.",
   "bc95.expectAT|param|command": "AT Kommando ohne Prefix",
   "bc95.expectOK": "Sende ein AT Kommando an das Modul und erwarte OK. Nur den Befehl ohne AT Prefix, z.B. AT(\"+CGMI=?\"). Gibt Erfolg zurück.",
