@@ -1,5 +1,6 @@
 {
   "bc95": "Funktionen für das NB-IoT Modul BC95",
+  "bc95.attach": "Verbinde NB-IoT Netzwerk.",
   "bc95.expectAT": "Sende ein AT Kommando an das Modul. Nur den Befehl, ohne den AT Prefix, z.B. AT(\"+CIMI\"). Gibt die erste Zeile der Antwort des Modules zurück.",
   "bc95.expectAT|param|command": "AT Kommando ohne Prefix",
   "bc95.expectOK": "Sende ein AT Kommando an das Modul und erwarte OK. Nur den Befehl ohne AT Prefix, z.B. AT(\"+CGMI=?\"). Gibt Erfolg zurück.",
@@ -19,5 +20,8 @@
   "bc95.setAPN|param|user": "Benutzername",
   "bc95.setServer": "Konfiguriert die IP Adresse des UDP Empfangsservers.",
   "bc95.setServer|param|host": "IP Adresse des Empfangsservers",
-  "bc95.setServer|param|port": "Portadresse des Empfangsservers, z.B. 5883"
+  "bc95.setServer|param|port": "Portadresse des Empfangsservers, z.B. 5883",
+  "serial": "Reading and writing data over a serial connection.",
+  "serial.resetSerial": "Setze seriellen Port zurück auf USBTX/USBRX.",
+  "serial.setReceiveBufferSize": "Setze Empfangspuffergröße."
 }

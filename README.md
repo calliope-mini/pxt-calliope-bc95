@@ -32,9 +32,9 @@ The socat server should show something like this:
 ![Example Code](example.png)
 
 ```
-$ socat -vvv PIPE udp-recvfrom:5883,fork
-< 2017/08/19 01:50:09.881710  length=47 from=0 to=46
-{"id":"bc9ab239","p":{"Hello":"Calliope mini"}}
+$ listening on [any] 5883 ...
+  connect to [46.23.86.61] from tmo-121-137.customers.d1-online.com [80.187.121.137] 24189
+  {"id":"bc9ab239","p":{"t":29}}{"id":"bc9ab239","p":{"Hallo":"Calliope mini"}}
 
 ```
 

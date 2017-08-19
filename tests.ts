@@ -9,11 +9,15 @@ function assert(msg: string, cond: boolean) {
     if (!cond) {
         bc95.log("ASSERT:", msg + " failed");
         panic(45);
+    } else {
+        bc95.log("TEST:", msg +": OK");
     }
 }
 
-bc95.init(SerialPin.C17, SerialPin.C16, BaudRate.BaudRate9600);
+console.log("START TEST");
 
+bc95.init(SerialPin.C17, SerialPin.C16, BaudRate.BaudRate9600);
+// bc95.enableDebug(true);
 
 assert("modem working",
     bc95.expectOK(""));
@@ -49,8 +53,11 @@ assert("expect ping reply", bc95.receiveResponse((line: string) => {
     return line.length > 7 && line.substr(0,7) == "+NPING:";
 })[0].length != 0);
 
+bc95.setServer("46.23.86.61", 5883);
 bc95.sendNumber("test", 123);
+assert("sending number", bc95.sendOk());
 bc95.sendString("test", "value 123");
+assert("sending string", bc95.sendOk());
 
-bc95.resetSerial();
+serial.resetSerial();
 console.log("TEST FINISHED OK");

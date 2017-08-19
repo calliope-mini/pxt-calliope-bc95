@@ -1,16 +1,17 @@
 /**
- * Functions for the NB-IoT module BC95
+ * Functions for the NB-IoT module bc95
  */
 
-//% weight=2 color=#A8BCBC
-//% advanced=true
+//% weight=2 color=#A8BCBC icon="\uf1d9"
+//% parts="bc95    
 namespace bc95 {
-    // enabling DEBUG allows to follow the AT flow on the US
-    const DEBUG = true;
+    // enabling DEBUG allows to follow the AT flow on the USB serial port
+    // this switches the serial back and forth and introduces delays
+    let DEBUG = false;
 
-    const TX = SerialPin.C17;
-    const RX = SerialPin.C16;
-    const BAUD = BaudRate.BaudRate9600;
+    let TX = SerialPin.C17;
+    let RX = SerialPin.C16;
+    let BAUD = BaudRate.BaudRate9600;
 
     let SERVER = "";
     let PORT = 44567;
@@ -20,38 +21,36 @@ namespace bc95 {
     let ERROR = false;
 
     /**
-     * Initialize BC95 module to use serial port.
+     * Initialize bc95 module serial port.
      * @param tx the new transmission pins, eg: SerialPin.C17
      * @param rx the new reception pin, eg: SerialPin.C16
      * @param rate the new baud rate, eg: BaudRate.BaudRate9600
      */
     //% weight=210
-    //% blockId=bc95_init block="initialize BC95|TX %tx|RX %rx|at baud rate %rate"
+    //% blockId=bc95_init block="initialize bc95|TX %tx|RX %rx|at baud rate %rate"
+    //% blockExternalInputs=1
     //% parts="bc95"
     export function init(tx: SerialPin, rx: SerialPin, rate: BaudRate): void {
-        serial.redirect(tx, rx, rate);
-        setReceiveBufferSize(100);
-        expectOK("+CFUN=1");
-        expectOK("+COPS=1,2,\"26201\"");
-        for (let i = 0; i < 6; i++) {
-            if(bc95.sendAT("+CGATT?")[0] == "+CGATT:1") break;
-            basic.pause(1000);
-        }
+        TX = tx;
+        RX = rx;
+        BAUD = rate;
+        serial.redirect(TX, RX, BAUD);
+        serial.setReceiveBufferSize(100);
     }
 
     /**
-     * Configure the APN to use for the NB-IoT messaging.
-     * @param apn the access point name, eg: internet.nbiot.telekom.de
-     * @param user a user name to access the APN
-     * @param password a password to access the APN
+     * Attach to the mobile network. May take up to 30s.
      */
     //% weight=209
-    //% blockId=bc95_setapn block="set APN %apn|user %user|password %password"
+    //% blockId=bc95_attach block="attach NB-IoT network"
     //% parts="bc95"
-    export function setAPN(apn: string, user: string = null, password: string = null) {
-        APN = apn;
-        if (user != null && user.length > 0) USER = user;
-        if (password != null && password.length > 0) PASS = password;
+    export function attach(): void {
+        expectOK("+CFUN=1");
+        expectOK("+COPS=1,2,\"26201\"");
+        for (let i = 0; i < 6; i++) {
+            if (bc95.sendAT("+CGATT?")[0] == "+CGATT:1") break;
+            basic.pause(1000);
+        }
     }
 
     /**
@@ -60,7 +59,7 @@ namespace bc95 {
      * @param port the port to send messages to, eg: 5883
      */
     //% weight=208
-    //% blockId=bc95_setserver block="set UDP IP |address %host|port %port"
+    //% blockId=bc95_setserver block="set server |address %host|port %port"
     //% parts="bc95"
     export function setServer(host: string, port: number): void {
         SERVER = host;
@@ -68,7 +67,23 @@ namespace bc95 {
     }
 
     /**
-     * Send an AT command to the BC95 module. Just provide the actual
+     * Configure the APN to use for the NB-IoT messaging.
+     * @param apn the access point name, eg: internet.nbiot.telekom.de
+     * @param user a user name to access the APN
+     * @param password a password to access the APN
+     */
+    //% weight=100
+    //% blockId=bc95_setapn block="set APN %apn|user %user|password %password"
+    //% blockExternalInputs=1
+    //% parts="bc95"
+    export function setAPN(apn: string, user: string = null, password: string = null) {
+        APN = apn;
+        if (user != null && user.length > 0) USER = user;
+        if (password != null && password.length > 0) PASS = password;
+    }
+
+    /**
+     * Send an AT command to the bc95 module. Just provide the actual
      * command, not the AT prefix, like this AT("+CGMI?"). Ignores the
      * AT command response completely
      * @param command the command to be sent without AT prefix
@@ -76,12 +91,13 @@ namespace bc95 {
     //% weight=20
     //% blockId=bc95_pushat block="send AT %command"
     //% parts="bc95"
+    //% advanced=true
     export function pushAT(command: string): void {
         sendAT(command);
     }
 
     /**
-     * Send an AT command to the BC95 module. Just provide the actual
+     * Send an AT command to the bc95 module. Just provide the actual
      * command, not the AT prefix, like this AT("+CIMI"). Returns the
      * first line of the response from this AT command.
      * @param command the command to be sent without AT prefix
@@ -89,6 +105,7 @@ namespace bc95 {
     //% weight=22
     //% blockId=bc95_sendat block="send AT %command and receive"
     //% parts="bc95"
+    //% advanced=true
     export function expectAT(command: string): string {
         let r = sendAT(command);
         if (r.length == 0) return "";
@@ -97,7 +114,7 @@ namespace bc95 {
 
     export function sendAT(command: string): Array<string> {
         basic.pause(100);
-        log("+++", "AT" + command);
+        if (DEBUG) log("+++", "AT" + command);
         serial.writeString("\r\nAT" + command + "\r\n");
         return receiveResponse((line: string) => {
             return line == "OK\r" || line == "ERROR\r";
@@ -108,15 +125,15 @@ namespace bc95 {
         let line = "";
         let received: Array<string> = [];
         do {
-            line = serial.readLine();
+            line = serial.readLine_();
             if (line.length > 1) received.push(line.substr(0, line.length - 1));
         } while (!cond(line));
-        logArray("---", received);
+        if (DEBUG) logArray("---", received);
         return received;
     }
 
     /**
-     * Send an AT command to the BC95 module and expect OK. Just provide the actual
+     * Send an AT command to the bc95 module and expect OK. Just provide the actual
      * command, not the AT prefix, like this AT("+CGMI?"). This function
      * only returns whether the command was executed successful or not.
      * @param command the command to be sent without AT prefix
@@ -124,6 +141,7 @@ namespace bc95 {
     //% weight=21
     //% blockId=bc95_expectok block="check AT %command|response OK?"
     //% parts="bc95"
+    //% advanced=true
     export function expectOK(command: string): boolean {
         let response = sendAT(command);
         return response[response.length - 1] == "OK";
@@ -134,6 +152,7 @@ namespace bc95 {
      */
     //% weight=110
     //% blockId=bc95_sendNumber block="UDP|send number message|key %key|value %n"
+    //% blockExternalInputs=1
     //% parts="bc95"
     export function sendNumber(key: string, value: number): void {
         ERROR = !sendUDP("{\"" + key + "\":" + value + "}");
@@ -144,6 +163,7 @@ namespace bc95 {
      */
     //% weight=120
     //% blockId=bc95_sendString block="UDP|send string message|key %key|value %n"
+    //% blockExternalInputs=1
     //% parts="bc95"
     export function sendString(key: string, value: string): void {
         ERROR = !sendUDP("{\"" + key + "\":\"" + value + "\"}");
@@ -155,10 +175,10 @@ namespace bc95 {
     function sendUDP(message: string, receivePort: number = 44567): boolean {
         let sendok = false;
         // open the socket and remember the socket number
-        let response = sendAT("+NSOCR=DGRAM,17,"+receivePort+",1");
+        let response = sendAT("+NSOCR=DGRAM,17," + receivePort + ",1");
         if (response[response.length - 1] == "OK") {
             let socket = response[0];
-            message = "{\"id\":\""+bc95.getSerialNumber()+"\",\"p\":"+message+"}";
+            message = "{\"id\":\"" + getSerialNumber() + "\",\"p\":" + message + "}";
             // send UDP packet
             sendok = expectOK("+NSOST=" + socket + "," + SERVER + "," + PORT + "," + message.length + "," + stringToHex(message));
             // close socket
@@ -183,7 +203,7 @@ namespace bc95 {
 
     const l = "0123456789ABCDEF";
 
-    // helper function to convert a string into a hex representation usable by the BC95 module
+    // helper function to convert a string into a hex representation usable by the bc95 module
     export function stringToHex(s: string): string {
         let r = "";
         for (let i = 0; i < s.length; i++) {
@@ -194,35 +214,68 @@ namespace bc95 {
     }
 
     // debug functions
+
+    /**
+     * Enable AT command debug.
+     */
+    //% weight=1
+    //% blockId=bc95_setDEBUG block="enable DEBUG %debug"
+    //% parts="bc95"
+    //% advanced=true
+    export function enableDebug(debug: boolean = false): void {
+        DEBUG = debug;
+    }
+
     export function log(prefix: string, message: string): void {
-        if (!DEBUG) return;
         basic.pause(100);
-        resetSerial();
-        console.log(prefix + " " + message);
+        serial.resetSerial();
+        serial.writeLine(prefix + " " + message);
         basic.pause(100);
         serial.redirect(TX, RX, BAUD);
         basic.pause(100);
     }
 
     export function logArray(prefix: string, lines: Array<string>): void {
-        if (!DEBUG) return;
         basic.pause(100);
-        resetSerial();
+        serial.resetSerial();
         if (lines.length > 1) console.log(prefix + " (" + lines.length + " lines)");
         for (let i = 0; i < lines.length; i++) {
-            console.log(prefix + " " + lines[i]);
+            serial.writeLine(prefix + " " + lines[i]);
         }
         basic.pause(100);
         serial.redirect(TX, RX, BAUD);
         basic.pause(100);
     }
 
-    //% shim=bc95::setReceiveBufferSize
-    export function setReceiveBufferSize(size: number) {}
-
-    //% shim=bc95::resetSerial
-    export function resetSerial() {}
-
     //% shim=bc95::getSerialNumber
-    export function getSerialNumber(): string { return "ABCDEF00"; }
+    export function getSerialNumber(): string {
+        // nothing here
+        return "FEDCBA00";
+    }
+
+}
+
+namespace serial {
+    /**
+     * Set serial receive buffer size.
+     */
+    //% blockId=serial_buffersize block="serial receive buffer size %size"
+    //% shim=serial::setReceiveBufferSize
+    export function setReceiveBufferSize(size: number): void {
+        return;
+    }
+
+    /**
+     * Reset serial back to USBTX/USBRX.
+     */
+    //% blockId=serial_resetserial block="serial reset"
+    //% shim=serial::resetSerial
+    export function resetSerial(): void {
+        return;
+    }
+
+    //% shim=serial::readLine_
+    export function readLine_(): string {
+        return "OK\r";
+    }
 }
