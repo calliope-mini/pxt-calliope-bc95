@@ -12,19 +12,36 @@ The code may be used as a starting point for similar AT based systems.
 ## Testing
 
 - Modify `tests.ts` to send packages to your own server.
-- Execute a little server: `socat -vvv PIPE udp-recvfrom:44567,fork` (Linux, also echos the messages) 
-- Compile the test `pxt test` and copy `built/binary.hex` to the Calliope mini. 
+- Execute a little server: `nc -vv -ul -p 5883` (Linux, also echos the messages) 
+- Compile the test `pxt test` and copy `built/binary.hex` to the Calliope mini.
 
-> You can follow the AT flow on the USB serial console.
-
-The socat server should show something like this:
+On the USB console window you will see this:
 
 ```
-< 2017/08/18 21:03:15.581139  length=12 from=0 to=11
-{"test":123}> 2017/08/18 21:03:15.581278  length=12 from=0 to=11
-{"test":123}< 2017/08/18 21:03:18.788587  length=20 from=0 to=19
-{"test":"value 123"}> 2017/08/18 21:03:18.788728  length=20 from=0 to=19
-{"test":"value 123"}< 2017/08/18 21:06:26.298899  length=12 from=0 to=11
+START TEST
+TEST: modem working: OK
+TEST: enable all functionality: OK
+TEST: check IMSI: OK
+TEST: connect to network: OK
+TEST: check signal quality: OK
+TEST: check network stats: OK
+TEST: check PDP context: OK
+TEST: check address: OK
+TEST: check band: OK
+TEST: ping external server: OK
+TEST: expect ping reply: OK
+TEST: sending number: OK
+TEST: sending string: OK
+TEST FINISHED OK
+``` 
+
+> You can follow the AT flow on the USB serial console by enabling debug in `tests.ts`
+
+The server should show something like this:
+
+```
+connect to [46.23.86.61] from tmo-121-137.customers.d1-online.com [80.187.121.137] 25519
+ {"id":"bc9ab239","p":{"test":123}}{"id":"bc9ab239","p":{"test":"value 123"}}
 ```
 
 ## Example
@@ -37,6 +54,11 @@ $ listening on [any] 5883 ...
   {"id":"bc9ab239","p":{"t":29}}{"id":"bc9ab239","p":{"Hallo":"Calliope mini"}}
 
 ```
+
+## TODO
+
+- extract AT response parsing into its own module, to make it usable for other devices
+- handle incoming messages
 
 ## Meta
 
