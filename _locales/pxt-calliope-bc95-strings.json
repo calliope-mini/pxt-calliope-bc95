@@ -3,12 +3,10 @@
   "bc95.expectOK|block": "check AT %command|response OK?",
   "bc95.init|block": "initialize BC95|TX %tx|RX %rx|at baud rate %rate",
   "bc95.pushAT|block": "send AT %command",
-  "bc95.resetSerial|block": "serial pin reset",
   "bc95.sendNumber|block": "UDP|send number message|key %key|value %n",
   "bc95.sendOk|block": "UDP send success?",
   "bc95.sendString|block": "UDP|send string message|key %key|value %n",
   "bc95.setAPN|block": "set APN %apn|user %user|password %password",
-  "bc95.setReceiveBufferSize|block": "serial buffer size %size",
   "bc95.setServer|block": "set UDP IP |address %host|port %port",
   "bc95|block": "bc95",
   "{id:category}Bc95": "Bc95"

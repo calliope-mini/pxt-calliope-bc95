@@ -10,8 +10,8 @@
         "README.md",
         "bc95.cpp",
         "bc95.ts",
-        "_locales/de/calliope-bc95-jsdoc-strings.json",
-        "_locales/de/calliope-bc95-strings.json"
+        "_locales/de/pxt-calliope-bc95-jsdoc-strings.json",
+        "_locales/de/pxt-calliope-bc95-strings.json"
     ],
     "testFiles": [
         "tests.ts"
