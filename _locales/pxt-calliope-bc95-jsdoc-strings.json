@@ -23,7 +23,7 @@
   "bc95.setEncryption|param|encrypted": "whether the data should be encrypted, eg: false",
   "bc95.setServer": "Configure the UDP server to use for the NB-IoT messaging.",
   "bc95.setServer|param|host": "the IP address of a server to send messages to",
-  "bc95.setServer|param|port": "the port to send messages to, eg: 5883",
+  "bc95.setServer|param|port": "the port to send messages to, eg: 9090",
   "bc95.showDeviceInfo": "Show Calliope device id and the secret for communication.",
   "serial": "Reading and writing data over a serial connection.",
   "serial.resetSerial": "Reset serial back to USBTX/USBRX.",
