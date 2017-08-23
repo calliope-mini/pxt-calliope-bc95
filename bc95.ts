@@ -91,7 +91,7 @@ namespace bc95 {
      * @param encrypted whether the data should be encrypted, eg: false
      */
     //% weight=105
-    //% blockId=bc95_setapn block="encrypt messages %encrypted"
+    //% blockId=bc95_setencrypted block="encrypt messages %encrypted"
     //% parts="bc95"
     export function setEncryption(encrypted: boolean = false) {
         ENCRYPTED = encrypted;
