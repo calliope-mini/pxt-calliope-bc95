@@ -14,7 +14,7 @@ namespace bc95 {
     let BAUD = BaudRate.BaudRate9600;
 
     let SERVER = "";
-    let PORT = 44567;
+    let PORT = 9090;
     let APN = "internet.nbiot.telekom.de";
     let USER = "";
     let PASS = "";
@@ -58,7 +58,7 @@ namespace bc95 {
     /**
      * Configure the UDP server to use for the NB-IoT messaging.
      * @param host the IP address of a server to send messages to
-     * @param port the port to send messages to, eg: 5883
+     * @param port the port to send messages to, eg: 9090
      */
     //% weight=208
     //% blockId=bc95_setserver block="set server |address %host|port %port"
