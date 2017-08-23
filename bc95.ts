@@ -1,8 +1,8 @@
 /**
- * Functions for the NB-IoT module bc95
+ * Functions for the NB-IoT module BC95.
  */
 
-//% weight=2 color=#A8BCBC icon="\uf1d9"
+//% weight=2 color=#117447 icon="\uf1d9"
 //% parts="bc95    
 namespace bc95 {
     // enabling DEBUG allows to follow the AT flow on the USB serial port
@@ -18,10 +18,11 @@ namespace bc95 {
     let APN = "internet.nbiot.telekom.de";
     let USER = "";
     let PASS = "";
+    let ENCRYPTED = false;
     let ERROR = false;
 
     /**
-     * Initialize bc95 module serial port.
+     * Initialize BC95 module. The serial port and generic settings.
      * @param tx the new transmission pins, eg: SerialPin.C17
      * @param rx the new reception pin, eg: SerialPin.C16
      * @param rate the new baud rate, eg: BaudRate.BaudRate9600
@@ -31,6 +32,7 @@ namespace bc95 {
     //% blockExternalInputs=1
     //% parts="bc95"
     export function init(tx: SerialPin, rx: SerialPin, rate: BaudRate): void {
+        // initialize serial port
         TX = tx;
         RX = rx;
         BAUD = rate;
@@ -72,7 +74,7 @@ namespace bc95 {
      * @param user a user name to access the APN
      * @param password a password to access the APN
      */
-    //% weight=100
+    //% weight=110
     //% blockId=bc95_setapn block="set APN %apn|user %user|password %password"
     //% blockExternalInputs=1
     //% parts="bc95"
@@ -81,6 +83,20 @@ namespace bc95 {
         if (user != null && user.length > 0) USER = user;
         if (password != null && password.length > 0) PASS = password;
     }
+
+    /**
+     * Set encryption mode. Whether data should be AES encrypted. See #showDeviceInfo
+     * how to identify the device ID and secret.
+     * ATTENTION: Only works if BLUETOOTH is enabled!
+     * @param encrypted whether the data should be encrypted, eg: false
+     */
+    //% weight=105
+    //% blockId=bc95_setapn block="encrypt messages %encrypted"
+    //% parts="bc95"
+    export function setEncryption(encrypted: boolean = false) {
+        ENCRYPTED = encrypted;
+    }
+
 
     /**
      * Send an AT command to the bc95 module. Just provide the actual
@@ -170,7 +186,9 @@ namespace bc95 {
     }
 
     /**
-     * Send the actual message, encoded.
+     * Send the actual message, encoded. Data is encoded in message pack format:
+     * `INT[DeviceId]BYTES[Message]`. The maximum message size is 504 bytes.
+     * If messages are encrypted, the key is 16 bytes: [SECRET,ID,SECRET,ID].
      */
     function sendUDP(message: string, receivePort: number = 44567): boolean {
         let sendok = false;
@@ -178,9 +196,40 @@ namespace bc95 {
         let response = sendAT("+NSOCR=DGRAM,17," + receivePort + ",1");
         if (response[response.length - 1] == "OK") {
             let socket = response[0];
-            message = "{\"id\":\"" + getSerialNumber() + "\",\"p\":" + message + "}";
+            let packetLength = 0;
+
+            let encoded = "";
+            if (message.length < 32) {
+                // messages shorter than 32 bytes will have a single 0xA0 + length marker byte
+                packetLength = message.length + 1;
+                encoded = String.fromCharCode(0xA0 + message.length);
+            } else if (message.length < 256) {
+                // messages shorter than 255 bytes have two bytes as marker: 0xd9 and length
+                packetLength = message.length + 2;
+                encoded += String.fromCharCode(0xD9) + String.fromCharCode(message.length);
+            } else if (message.length < 505) {
+                // messages shorter than 255 bytes have two bytes as marker: 0xd9 and a two byte length
+                packetLength = message.length + 3;
+                encoded += String.fromCharCode(0xD9) + String.fromCharCode(message.length >> 8) + String.fromCharCode(message.length & 0xff);
+            } else {
+                // the BC95 module only supports a maximum payload of 512 bytes!
+                return false;
+            }
+            // add actual message
+            encoded += message;
+
+            // encrypt message, if needed, padding w/ 0x80 and zeros
+            if(ENCRYPTED) {
+                encoded = encrypt(encoded + String.fromCharCode(0x80));
+                packetLength = encoded.length;
+            }
+
+            // encode the package in messagepack format
+            let header = String.fromCharCode(0xCE) + numberToString(getDeviceId(1));
+            packetLength += 5;
+
             // send UDP packet
-            sendok = expectOK("+NSOST=" + socket + "," + SERVER + "," + PORT + "," + message.length + "," + stringToHex(message));
+            sendok = expectOK("+NSOST=" + socket + "," + SERVER + "," + PORT + "," + (packetLength) + "," + stringToHex(header + encoded));
             // close socket
             expectOK("+NSOCL=" + socket);
         }
@@ -201,16 +250,55 @@ namespace bc95 {
         } else return true;
     }
 
-    const l = "0123456789ABCDEF";
+    /**
+     * Show Calliope device id and the secret for communication.
+     */
+    //% weight=2
+    //% blockId=bc95_showdeviceinfo block="show device Info|on display %onDisplay"
+    //% parts="bc95"
+    //% advanced=true
+    export function showDeviceInfo(onDisplay: boolean = true): void {
+        let deviceId = numberToHex(getDeviceId(1));
+        let deviceSecret = numberToHex(getDeviceId(0));
+        log("ID", deviceId);
+        log("SECRET", deviceSecret);
+        if (onDisplay) basic.showString("id:" + deviceId + " secret:" + deviceSecret);
+    }
+
+    // converts a number into a readable hex-string representation
+    function numberToHex(n: number): string {
+        return stringToHex(numberToString(n));
+    }
+
+    // converts a number into a binary string representation
+    function numberToString(n: number): string {
+        return String.fromCharCode((n >> 24) & 0xff) +
+            String.fromCharCode((n >> 16) & 0xff) +
+            String.fromCharCode((n >> 8) & 0xff) +
+            String.fromCharCode(n & 0xff);
+    }
 
     // helper function to convert a string into a hex representation usable by the bc95 module
     export function stringToHex(s: string): string {
+        const l = "0123456789ABCDEF";
         let r = "";
         for (let i = 0; i < s.length; i++) {
             let c = s.charCodeAt(i);
             r = r + l.substr((c >> 4), 1) + l.substr((c & 0x0f), 1);
         }
         return r;
+    }
+
+    //% shim=bc95::getDeviceId
+    export function getDeviceId(n: number): number {
+        // dummy value for the simulator
+        return 0;
+    }
+
+    //% shim=bc95::encrypt
+    export function encrypt(data: string): string {
+        // dummy return
+        return "???";
     }
 
     // debug functions
@@ -246,13 +334,6 @@ namespace bc95 {
         serial.redirect(TX, RX, BAUD);
         basic.pause(100);
     }
-
-    //% shim=bc95::getSerialNumber
-    export function getSerialNumber(): string {
-        // nothing here
-        return "FEDCBA00";
-    }
-
 }
 
 namespace serial {

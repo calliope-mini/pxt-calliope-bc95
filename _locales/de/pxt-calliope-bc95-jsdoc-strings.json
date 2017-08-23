@@ -19,9 +19,12 @@
   "bc95.setAPN|param|apn": "Zugangspunkt, z.B. internet.nbiot.telekom.de",
   "bc95.setAPN|param|password": "Passwort",
   "bc95.setAPN|param|user": "Benutzername",
+  "bc95.setEncryption": "Setze Verschlüsselungsmodus, ob daten AES verschlüsselt gesendet werden sollen. Mit #showDeviceInfo kann ID und SECRET angezeigt werden.",
+  "bc95.setEncryption|param|encrypted": "whether the data should be encrypted, eg: false",
   "bc95.setServer": "Konfiguriert die IP Adresse des UDP Empfangsservers.",
   "bc95.setServer|param|host": "IP Adresse des Empfangsservers",
   "bc95.setServer|param|port": "Portadresse des Empfangsservers, z.B. 5883",
+  "bc95.showDeviceInfo": "Zeigt die ID und das SECRET des Gerätes an.",
   "serial": "Reading and writing data over a serial connection.",
   "serial.resetSerial": "Setze seriellen Port zurück auf USBTX/USBRX.",
   "serial.setReceiveBufferSize": "Setze Empfangspuffergröße."

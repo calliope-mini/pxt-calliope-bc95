@@ -16,8 +16,21 @@ function assert(msg: string, cond: boolean) {
 
 console.log("START TEST");
 
+// bc95.enableDebug(true);
 bc95.init(SerialPin.C17, SerialPin.C16, BaudRate.BaudRate9600);
 // bc95.enableDebug(true);
+bc95.showDeviceInfo(false);
+
+let encryptionSupported = true;
+let r = bc95.encrypt("ABCDEFG0123456");
+if(r.length) {
+    bc95.log("ENCRYPTED", bc95.stringToHex(r));
+    assert("encryption", r.length > 0);
+    assert("encryption cipher", bc95.stringToHex(r) == "8FF121A1CF04911C42EF80CCF13440A5");
+} else {
+    encryptionSupported = false;
+    bc95.log("ENCRYPTION", "unsupported, enable BLE");
+}
 
 assert("modem working",
     bc95.expectOK(""));
@@ -53,11 +66,23 @@ assert("expect ping reply", bc95.receiveResponse((line: string) => {
     return line.length > 7 && line.substr(0,7) == "+NPING:";
 })[0].length != 0);
 
-bc95.setServer("46.23.86.61", 5883);
+// bc95.setServer("46.23.86.61", 9090);
+bc95.setServer("13.80.19.24", 9090);
+
+// test unencrypted
+bc95.setEncryption(false);
 bc95.sendNumber("test", 123);
 assert("sending number", bc95.sendOk());
 bc95.sendString("test", "value 123");
 assert("sending string", bc95.sendOk());
 
+// test encrypted
+if(encryptionSupported) {
+    bc95.setEncryption(true);
+    bc95.sendNumber("test", 123);
+    assert("sending number (encrypted)", bc95.sendOk());
+    bc95.sendString("test", "value 123");
+    assert("sending string (encrypted)", bc95.sendOk());
+}
 serial.resetSerial();
 console.log("TEST FINISHED OK");
