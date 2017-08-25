@@ -3,8 +3,6 @@ extern "C" {
 #include <nrf_soc.h>
 }
 
-
-
 namespace bc95 {
 
     //%
@@ -47,17 +45,23 @@ namespace bc95 {
 namespace serial {
     //%
     void setReceiveBufferSize(int size) {
-      uBit.serial.setRxBufferSize(size);
+        // make sure we only allocate 255 bytes or the device will freeze
+        uBit.serial.setRxBufferSize(size < 255 ? size : 254);
+    }
+
+    //%
+    bool busy() {
+        return uBit.serial.txInUse();
     }
 
     //%
     void resetSerial() {
-      uBit.serial.redirect(USBTX, USBRX);
-      uBit.serial.baud(MICROBIT_SERIAL_DEFAULT_BAUD_RATE);
+        while(uBit.serial.redirect(USBTX, USBRX) == MICROBIT_SERIAL_IN_USE) fiber_sleep(10);
+        uBit.serial.baud(MICROBIT_SERIAL_DEFAULT_BAUD_RATE);
     }
 
     //%
-    StringData *readLine_() {
-      return uBit.serial.readUntil(ManagedString("\n")).leakData();
+    StringData *read(StringData *delimiters) {
+        return uBit.serial.readUntil(ManagedString(delimiters), MicroBitSerialMode::SYNC_SPINWAIT).leakData();
     }
 }

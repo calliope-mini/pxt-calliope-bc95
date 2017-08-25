@@ -109,7 +109,8 @@ namespace bc95 {
     //% parts="bc95"
     //% advanced=true
     export function pushAT(command: string): void {
-        sendAT(command);
+        if (DEBUG) log("+++", "AT" + command);
+        serial.writeString("\r\nAT" + command + "\r\n");
     }
 
     /**
@@ -133,7 +134,7 @@ namespace bc95 {
         if (DEBUG) log("+++", "AT" + command);
         serial.writeString("\r\nAT" + command + "\r\n");
         return receiveResponse((line: string) => {
-            return line == "OK\r" || line == "ERROR\r";
+            return line == "OK" || line == "ERROR";
         });
     }
 
@@ -141,9 +142,9 @@ namespace bc95 {
         let line = "";
         let received: Array<string> = [];
         do {
-            line = serial.readLine_();
-            if (line.length > 1) received.push(line.substr(0, line.length - 1));
-        } while (!cond(line));
+            line = serial.read("\r\n");
+            if (line.length > 0) received.push(line);
+        } while (line.length == 0 || !cond(line));
         if (DEBUG) logArray("---", received);
         return received;
     }
@@ -219,7 +220,7 @@ namespace bc95 {
             encoded += message;
 
             // encrypt message, if needed, padding w/ 0x80 and zeros
-            if(ENCRYPTED) {
+            if (ENCRYPTED) {
                 encoded = encrypt(encoded + String.fromCharCode(0x80));
                 packetLength = encoded.length;
             }
@@ -318,7 +319,7 @@ namespace bc95 {
         basic.pause(100);
         serial.resetSerial();
         serial.writeLine(prefix + " " + message);
-        basic.pause(100);
+        while (serial.busy()) basic.pause(10);
         serial.redirect(TX, RX, BAUD);
         basic.pause(100);
     }
@@ -326,11 +327,10 @@ namespace bc95 {
     export function logArray(prefix: string, lines: Array<string>): void {
         basic.pause(100);
         serial.resetSerial();
-        if (lines.length > 1) console.log(prefix + " (" + lines.length + " lines)");
         for (let i = 0; i < lines.length; i++) {
-            serial.writeLine(prefix + " " + lines[i]);
+            serial.writeLine(prefix + " (" + lines[i].length + ") " + lines[i]);
         }
-        basic.pause(100);
+        while (serial.busy()) basic.pause(10);
         serial.redirect(TX, RX, BAUD);
         basic.pause(100);
     }
@@ -347,6 +347,14 @@ namespace serial {
     }
 
     /**
+     * Check if the serial is ready.
+     */
+    //% shim=serial::busy
+    export function busy(): boolean {
+        return false;
+    }
+
+    /**
      * Reset serial back to USBTX/USBRX.
      */
     //% blockId=serial_resetserial block="serial reset"
@@ -355,8 +363,8 @@ namespace serial {
         return;
     }
 
-    //% shim=serial::readLine_
-    export function readLine_(): string {
-        return "OK\r";
+    //% shim=serial::read
+    export function read(delimiters: string): string {
+        return "OK";
     }
 }
