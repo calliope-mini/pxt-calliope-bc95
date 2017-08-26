@@ -3,7 +3,7 @@
 // run pxt test & copy build/binary.hex to MINI drive
 
 // loop until button A is kept pressed
-const LOOP = true;
+const LOOP = false;
 // log AT commands to USB console
 const DEBUG_AT = false;
 
@@ -20,23 +20,26 @@ function assert(msg: string, cond: boolean) {
     }
 }
 
-console.log("START TEST");
+console.log("TEST START");
 
 // initialize module
 bc95.init(SerialPin.C17, SerialPin.C16, BaudRate.BaudRate9600);
 bc95.showDeviceInfo(false);
 
+modem.log("!!!", "ENCRYPTION TEST");
 // test encryption support and HW encryption
 let encryptionSupported = true;
 let r = bc95.encrypt("ABCDEFG0123456");
 if (r.length) {
-    modem.log("ENCRYPTED", bc95.stringToHex(r));
+    modem.log("ENCRYPTION", bc95.stringToHex(r));
     assert("encryption", r.length > 0);
     assert("encryption cipher", bc95.stringToHex(r) == "8FF121A1CF04911C42EF80CCF13440A5");
 } else {
     encryptionSupported = false;
     modem.log("ENCRYPTION", "unsupported, enable BLE");
 }
+
+modem.log("!!!", "MODEM TEST");
 
 // test modem functionality
 modem.enableDebug(DEBUG_AT);
@@ -74,6 +77,8 @@ assert("ping external server",
 assert("expect ping reply", modem.receiveResponse((line: string) => {
     return line.length > 7 && line.substr(0, 7) == "+NPING:";
 })[0].length != 0);
+
+modem.log("!!!", "BC95 TEST");
 
 // test BC95 module functionality
 bc95.setServer("13.93.47.253", 9090);

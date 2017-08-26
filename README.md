@@ -18,7 +18,12 @@ The code may be used as a starting point for similar AT based systems.
 On the USB console window you will see this:
 
 ```
-START TEST
+TEST START
+ID ABCDEF12
+SECRET 21FEDCBA
+!!! ENCRYPTION TEST
+ENCRYPTION unsupported, enable BLE
+!!! MODEM TEST
 TEST: modem working: OK
 TEST: enable all functionality: OK
 TEST: check IMSI: OK
@@ -30,7 +35,9 @@ TEST: check address: OK
 TEST: check band: OK
 TEST: ping external server: OK
 TEST: expect ping reply: OK
-TEST: sending number: OK
+!!! BC95 TEST
+TEST: sending number (temp): OK
+TEST: sending number (light): OK
 TEST: sending string: OK
 TEST FINISHED OK
 ``` 
@@ -52,39 +59,31 @@ connect to [46.23.86.61] from tmo-121-137.customers.d1-online.com [80.187.121.13
 ### Javascript
 
 ```typescript
-input.onButtonPressed(Button.A, () => {
-    bc95.sendString(
-        "Hallo",
-        "Calliope mini"
-    )
-    if (bc95.sendOk()) {
-        basic.showIcon(IconNames.Yes)
-    } else {
-        basic.showIcon(IconNames.No)
-    }
-    basic.pause(1000)
-    basic.clearScreen()
-})
-input.onButtonPressed(Button.B, () => {
+input.onGesture(Gesture.Shake, () => {
     bc95.sendNumber(
-        "t",
+        "accel",
+        input.acceleration(Dimension.Strength)
+    )
+})
+input.onButtonPressed(Button.A, () => {
+    bc95.sendNumber(
+        "temp",
         input.temperature()
     )
-    if (bc95.sendOk()) {
-        basic.showIcon(IconNames.Yes)
-    } else {
-        basic.showIcon(IconNames.No)
-    }
-    basic.pause(1000)
-    basic.clearScreen()
 })
+modem.enableDebug(true)
+bc95.setEncryption(true)
 bc95.init(
     SerialPin.C17,
     SerialPin.C16,
     BaudRate.BaudRate9600
 )
 bc95.attach()
-bc95.setServer("46.23.86.61", 5883)
+bc95.setServer("46.23.86.61", 9090)
+bc95.sendNumber(
+    "temp",
+    input.temperature()
+)
 ```
 
 ```
