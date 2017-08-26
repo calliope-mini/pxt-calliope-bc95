@@ -31,6 +31,6 @@
   "modem.sendAT": "Sende ein AT command und erwarte OK oder ERROR.",
   "serial": "Serieller Anschluß.",
   "serial.resetSerial": "Setze seriellen Port zurück auf USBTX/USBRX.",
-  "serial.setReceiveBufferSize": "Setze Empfangspuffergröße."
+  "serial.setReceiveBufferSize": "Setze Empfangspuffergröße.",
   "serial.setReceiveBufferSize|param|size": "Neue Größe des Empfangspuffers, z.B. 20."
 }
