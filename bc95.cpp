@@ -4,7 +4,6 @@ extern "C" {
 }
 
 namespace bc95 {
-
     //%
     uint32_t getDeviceId(int n) {
         return NRF_FICR->DEVICEID[n < 0 || n > 3 ? 0 : n];
@@ -39,29 +38,5 @@ namespace bc95 {
         }
 
         return buffer;
-    }
-}
-
-namespace serial {
-    //%
-    void setReceiveBufferSize(int size) {
-        // make sure we only allocate 255 bytes or the device will freeze
-        uBit.serial.setRxBufferSize(size < 255 ? size : 254);
-    }
-
-    //%
-    bool busy() {
-        return uBit.serial.txInUse();
-    }
-
-    //%
-    void resetSerial() {
-        while(uBit.serial.redirect(USBTX, USBRX) == MICROBIT_SERIAL_IN_USE) fiber_sleep(10);
-        uBit.serial.baud(MICROBIT_SERIAL_DEFAULT_BAUD_RATE);
-    }
-
-    //%
-    StringData *read(StringData *delimiters) {
-        return uBit.serial.readUntil(ManagedString(delimiters), MicroBitSerialMode::SYNC_SPINWAIT).leakData();
     }
 }

@@ -10,6 +10,9 @@
         "README.md",
         "bc95.cpp",
         "bc95.ts",
+        "modem.ts",
+        "ext_serial.cpp",
+        "ext_serial.ts",
         "_locales/de/pxt-calliope-bc95-jsdoc-strings.json",
         "_locales/de/pxt-calliope-bc95-strings.json"
     ],
