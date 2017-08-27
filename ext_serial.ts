@@ -3,12 +3,7 @@
  *
  * @author Matthias L. Jugel
  */
-
 namespace serial {
-    let TX: SerialPin = null;
-    let RX: SerialPin = null;
-    let BAUD = BaudRate.BaudRate9600;
-
     /**
      * Set serial receive buffer size.
      * @param size the new size of the receive buffer, eg: 20
