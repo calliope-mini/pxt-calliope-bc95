@@ -17,7 +17,6 @@ The code may be used as a starting point for similar AT based systems.
 
 ![Calliope mini - BC95 wiring](wiring.png)
 
-
 ## Testing
 
 - Modify `tests.ts` to send packages to your own server.

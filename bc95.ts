@@ -5,7 +5,7 @@
 //% weight=2 color=#117447 icon="\uf1d9"
 //% parts="bc95    
 namespace bc95 {
-    let SERVER = "";
+    let SERVER: string = null;
     let PORT = 9090;
     let APN = "internet.nbiot.telekom.de";
     let USER = "";
@@ -106,6 +106,7 @@ namespace bc95 {
     //% parts="bc95"
     function sendUDP(message: string, receivePort: number = 44567): boolean {
         let sendok = false;
+        if(SERVER == null || SERVER.length == 0) return sendok;
         // open the socket and remember the socket number
         let response = modem.sendAT("+NSOCR=DGRAM,17," + receivePort + ",1");
         if (response[response.length - 1] == "OK") {
