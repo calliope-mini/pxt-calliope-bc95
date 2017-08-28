@@ -9,6 +9,15 @@ It is used in conjunction with an [evaluation kit](http://www.quectel.com/produc
 
 The code may be used as a starting point for similar AT based systems.
 
+## Wiring the module
+
+- Power the BC95 EVB using the power supply or a battery connector
+- Power the Calliope mini using USB or battery
+- Connect EVB BC95 and Calliope mini as indicated in the image below:
+
+![Calliope mini - BC95 wiring](wiring.png)
+
+
 ## Testing
 
 - Modify `tests.ts` to send packages to your own server.

@@ -175,7 +175,7 @@ namespace bc95 {
         let deviceSecret = numberToHex(getDeviceId(0));
         modem.log("ID", deviceId);
         modem.log("SECRET", deviceSecret);
-        if (onDisplay) basic.showString("id:" + deviceId + " secret:" + deviceSecret);
+        if (onDisplay) basic.showString("id:" + deviceId + " secret:" + deviceSecret, 250);
     }
 
     /**
