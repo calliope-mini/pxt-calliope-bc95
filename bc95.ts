@@ -47,7 +47,7 @@ namespace bc95 {
     }
 
     /**
-     * Configure the UDP server to use for the NB-IoT messaging.
+     * Configure the server to use for the NB-IoT messaging.
      * @param host the IP address of a server to send messages to
      * @param port the port to send messages to, eg: 9090
      */

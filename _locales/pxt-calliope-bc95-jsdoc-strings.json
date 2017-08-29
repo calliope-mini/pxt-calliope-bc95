@@ -18,7 +18,7 @@
   "bc95.setAPN|param|user": "a user name to access the APN",
   "bc95.setEncryption": "Set encryption mode. Whether data should be AES encrypted. See #showDeviceInfo\nhow to identify the device ID and secret.\nATTENTION: Only works if BLUETOOTH is enabled!",
   "bc95.setEncryption|param|encrypted": "whether the data should be encrypted, eg: false",
-  "bc95.setServer": "Configure the UDP server to use for the NB-IoT messaging.",
+  "bc95.setServer": "Configure the server to use for the NB-IoT messaging.",
   "bc95.setServer|param|host": "the IP address of a server to send messages to",
   "bc95.setServer|param|port": "the port to send messages to, eg: 9090",
   "bc95.showDeviceInfo": "Show Calliope device id and the secret for communication.",
