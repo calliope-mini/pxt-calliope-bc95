@@ -87,7 +87,7 @@ bc95.init(
     BaudRate.BaudRate9600
 )
 bc95.attach()
-bc95.setServer("46.23.86.61", 9090)
+bc95.setServer("13.93.47.253", 9090)
 bc95.sendNumber(
     "temp",
     input.temperature()
