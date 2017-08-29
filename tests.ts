@@ -2,6 +2,9 @@
 // after everything is done
 // run pxt test & copy build/binary.hex to MINI drive
 
+let SERVER = "13.93.47.253";
+let PORT = 9090;
+
 // loop until button A is kept pressed
 const LOOP = false;
 // log AT commands to USB console
@@ -81,7 +84,7 @@ assert("expect ping reply", modem.receiveResponse((line: string) => {
 modem.log("!!!", "BC95 TEST");
 
 // test BC95 module functionality
-bc95.setServer("13.93.47.253", 9090);
+bc95.setServer(SERVER, PORT);
 
 // test encrypted
 if (encryptionSupported) {

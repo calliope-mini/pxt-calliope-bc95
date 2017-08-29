@@ -2,7 +2,7 @@
  * Functions for the NB-IoT module BC95.
  */
 
-//% weight=2 color=#117447 icon="\uf1d9"
+//% weight=2 color=#117447 icon="\uf1d9" block="BC95"
 //% parts="bc95    
 namespace bc95 {
     let SERVER: string = null;
@@ -29,16 +29,20 @@ namespace bc95 {
 
     /**
      * Attach to the mobile network. May take up to 30s.
+     * Waits for 1s between checks.
+     * @param tries the number of tries to wait for connection, eg: 6
      */
     //% weight=90
-    //% blockId=bc95_attach block="attach NB-IoT network"
+    //% blockId=bc95_attach block="attach NB-IoT network|wait seconds %tries"
+    //% blockExternalInputs=1
     //% parts="bc95"
-    export function attach(): void {
+    export function attach(tries: number = 6): void {
         modem.expectOK("+CFUN=1");
-        modem.expectOK("+COPS=1,2,\"26201\"");
-        for (let i = 0; i < 6; i++) {
-            if (modem.sendAT("+CGATT?")[0] == "+CGATT:1") break;
-            basic.pause(1000);
+        if(modem.expectOK("+COPS=1,2,\"26201\"")) {
+            for (let i = 0; i < tries; i++) {
+                if (modem.sendAT("+CGATT?")[0] == "+CGATT:1") break;
+                basic.pause(1000);
+            }
         }
     }
 
@@ -72,25 +76,25 @@ namespace bc95 {
     }
 
     /**
-     * Send a number to the backend server.
+     * Send a number to the backend server. Encodes key/value as a json message.
      */
     //% weight=70
-    //% blockId=bc95_sendNumber block="UDP send number message|key %key|value %n"
+    //% blockId=bc95_sendNumber block="send number message|key %key|value %n"
     //% blockExternalInputs=1
     //% parts="bc95"
     export function sendNumber(key: string, value: number): void {
-        ERROR = !sendUDP("{\"" + key + "\":" + value + "}");
+        send("{\"" + key + "\":" + value + "}");
     }
 
     /**
-     * Send a string to the backend server.
+     * Send a string to the backend server. Encodes key/value as a json message.
      */
     //% weight=70
-    //% blockId=bc95_sendString block="UDP send string message|key %key|value %n"
+    //% blockId=bc95_sendString block="send string message|key %key|value %n"
     //% blockExternalInputs=1
     //% parts="bc95"
     export function sendString(key: string, value: string): void {
-        ERROR = !sendUDP("{\"" + key + "\":\"" + value + "\"}");
+        send("{\"" + key + "\":\"" + value + "\"}");
     }
 
     /**
@@ -98,57 +102,59 @@ namespace bc95 {
      * INT[DeviceId]BYTES[Message]. The maximum message size is 504 bytes.
      * If messages are encrypted, the key is 16 bytes: [SECRET,ID,SECRET,ID].
      * @param message the message to send
-     * @param receivePort the port number if we expect an answer
+     * @param receivePort the local port to receive a response
      */
-    //% weight=70
-    //% blockId=bc95_sendudp block="UDP send raw message|message %message|receive port %receivePort"
+    //% weight=60
+    //% blockId=bc95_send block="send raw message|message %message"
     //% blockExternalInputs=1
+    //% advanced=true
     //% parts="bc95"
-    function sendUDP(message: string, receivePort: number = 44567): boolean {
-        let sendok = false;
-        if(SERVER == null || SERVER.length == 0) return sendok;
-        // open the socket and remember the socket number
-        let response = modem.sendAT("+NSOCR=DGRAM,17," + receivePort + ",1");
-        if (response[response.length - 1] == "OK") {
-            let socket = response[0];
-            let packetLength = 0;
+    export function send(message: string, receivePort: number = 44567): void {
+        ERROR = true;
+        if (SERVER != null && SERVER.length > 0) {
+            // open the socket and remember the socket number
+            let response = modem.sendAT("+NSOCR=DGRAM,17,"+receivePort+",1");
+            if (response[response.length - 1] == "OK") {
+                let socket = response[0];
+                let packetLength = 0;
 
-            let encoded = "";
-            if (message.length < 32) {
-                // messages shorter than 32 bytes will have a single 0xA0 + length marker byte
-                packetLength = message.length + 1;
-                encoded = String.fromCharCode(0xA0 + message.length);
-            } else if (message.length < 256) {
-                // messages shorter than 255 bytes have two bytes as marker: 0xd9 and length
-                packetLength = message.length + 2;
-                encoded += String.fromCharCode(0xD9) + String.fromCharCode(message.length);
-            } else if (message.length < 505) {
-                // messages shorter than 255 bytes have two bytes as marker: 0xd9 and a two byte length
-                packetLength = message.length + 3;
-                encoded += String.fromCharCode(0xD9) + String.fromCharCode(message.length >> 8) + String.fromCharCode(message.length & 0xff);
-            } else {
-                // the BC95 module only supports a maximum payload of 512 bytes!
-                return false;
+                let encoded = "";
+                if (message.length < 32) {
+                    // messages shorter than 32 bytes will have a single 0xA0 + length marker byte
+                    packetLength = message.length + 1;
+                    encoded = String.fromCharCode(0xA0 + message.length);
+                } else if (message.length < 256) {
+                    // messages shorter than 255 bytes have two bytes as marker: 0xd9 and length
+                    packetLength = message.length + 2;
+                    encoded += String.fromCharCode(0xD9) + String.fromCharCode(message.length);
+                } else if (message.length < 505) {
+                    // messages shorter than 255 bytes have two bytes as marker: 0xd9 and a two byte length
+                    packetLength = message.length + 3;
+                    encoded += String.fromCharCode(0xD9) + String.fromCharCode(message.length >> 8) + String.fromCharCode(message.length & 0xff);
+                } else {
+                    // the BC95 module only supports a maximum payload of 512 bytes!
+                    ERROR = true;
+                    return;
+                }
+                // add actual message
+                encoded += message;
+
+                // encrypt message, if needed, padding w/ 0x80 and zeros
+                if (ENCRYPTED) {
+                    encoded = encrypt(encoded + String.fromCharCode(0x80));
+                    packetLength = encoded.length;
+                }
+
+                // encode the package in messagepack format
+                let header = String.fromCharCode(0xCE) + numberToString(getDeviceId(1));
+                packetLength += 5;
+
+                // send UDP packet
+                ERROR = !modem.expectOK("+NSOST=" + socket + "," + SERVER + "," + PORT + "," + (packetLength) + "," + stringToHex(header + encoded));
+                // close socket
+                modem.expectOK("+NSOCL=" + socket);
             }
-            // add actual message
-            encoded += message;
-
-            // encrypt message, if needed, padding w/ 0x80 and zeros
-            if (ENCRYPTED) {
-                encoded = encrypt(encoded + String.fromCharCode(0x80));
-                packetLength = encoded.length;
-            }
-
-            // encode the package in messagepack format
-            let header = String.fromCharCode(0xCE) + numberToString(getDeviceId(1));
-            packetLength += 5;
-
-            // send UDP packet
-            sendok = modem.expectOK("+NSOST=" + socket + "," + SERVER + "," + PORT + "," + (packetLength) + "," + stringToHex(header + encoded));
-            // close socket
-            modem.expectOK("+NSOCL=" + socket);
         }
-        return sendok;
     }
 
     /**
@@ -156,7 +162,7 @@ namespace bc95 {
      * Also reset the status.
      */
     //% weight=70
-    //% blockId=bc95_sendOk block="UDP send success?"
+    //% blockId=bc95_sendOk block="send success?"
     //% parts="bc95"
     export function sendOk(): boolean {
         if (ERROR) {
