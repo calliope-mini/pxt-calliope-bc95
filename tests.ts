@@ -25,6 +25,9 @@ function assert(msg: string, cond: boolean) {
 
 console.log("TEST START");
 
+// test modem functionality
+modem.enableDebug(DEBUG_AT);
+
 // initialize module
 bc95.init(SerialPin.C17, SerialPin.C16, BaudRate.BaudRate9600);
 bc95.showDeviceInfo(false);
@@ -44,8 +47,7 @@ if (r.length) {
 
 modem.log("!!!", "MODEM TEST");
 
-// test modem functionality
-modem.enableDebug(DEBUG_AT);
+
 
 assert("modem working",
     modem.expectOK(""));

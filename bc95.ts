@@ -25,6 +25,16 @@ namespace bc95 {
     //% parts="bc95"
     export function init(tx: SerialPin, rx: SerialPin, rate: BaudRate): void {
         modem.init(tx, rx, rate);
+
+        // check firmware version, could not get this to work with any other
+        let r = modem.sendAT("+CGMR");
+        if (!(r.length > 1 && r[r.length - 2] == "V100R100C10B656")) {
+            basic.showString("BC95 wrong firmware: " + r[r.length - 2]);
+        }
+        // setup some basics
+        modem.expectOK("+NCONFIG=AUTOCONNECT,TRUE");
+        modem.expectOK("+NCONFIG=CR_0354_0338_SCRAMBLING,TRUE");
+        modem.expectOK("+NCONFIG=CR_0859_SI_AVOID,TRUE");
     }
 
     /**
@@ -38,7 +48,7 @@ namespace bc95 {
     //% parts="bc95"
     export function attach(tries: number = 6): void {
         modem.expectOK("+CFUN=1");
-        if(modem.expectOK("+COPS=1,2,\"26201\"")) {
+        if (modem.expectOK("+COPS=1,2,\"26201\"")) {
             for (let i = 0; i < tries; i++) {
                 if (modem.sendAT("+CGATT?")[0] == "+CGATT:1") break;
                 basic.pause(1000);
@@ -113,7 +123,7 @@ namespace bc95 {
         ERROR = true;
         if (SERVER != null && SERVER.length > 0) {
             // open the socket and remember the socket number
-            let response = modem.sendAT("+NSOCR=DGRAM,17,"+receivePort+",1");
+            let response = modem.sendAT("+NSOCR=DGRAM,17," + receivePort + ",1");
             if (response[response.length - 1] == "OK") {
                 let socket = response[0];
                 let packetLength = 0;
