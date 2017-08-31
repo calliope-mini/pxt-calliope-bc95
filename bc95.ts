@@ -25,6 +25,8 @@ namespace bc95 {
     //% parts="bc95"
     export function init(tx: SerialPin, rx: SerialPin, rate: BaudRate): void {
         modem.init(tx, rx, rate);
+        // the BC95 requires at least an \r before AT
+        modem.setATPrefix("\rAT");
 
         // check firmware version, could not get this to work with any other
         let r = modem.sendAT("+CGMR");

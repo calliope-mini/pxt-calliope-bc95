@@ -10,17 +10,5 @@
   "bc95.setServer|block": "setze Serveradresse %host|Port %port",
   "bc95.showDeviceInfo|block": "zeige Geräteinfo|auf dem Display %onDisplay",
   "bc95|block": "BC95",
-  "modem.enableDebug|block": "zeige AT Kommandos %debug",
-  "modem.expectOK|block": "sende AT Kommando %command|Resultat OK?",
-  "modem.init|block": "initialisiere Modem|TX %tx|RX %rx|mit Baudrate %rate",
-  "modem.pushAT|block": "sende AT %command",
-  "modem.receiveResponse|block": "warte auf Antwort %cond",
-  "modem.sendAT|block": "sende AT %command und empfange",
-  "modem|block": "Modem",
-  "serial.resetSerial|block": "seriellen Port zurücksetzen",
-  "serial.setReceiveBufferSize|block": "setze Empfangspuffergrösse %size",
-  "serial|block": "seriell",
-  "{id:category}Bc95": "BC95",
-  "{id:category}Modem": "Modem",
-  "{id:category}Serial": "Seriell"
+  "{id:category}Bc95": "BC95"
 }

@@ -103,13 +103,14 @@ $ listening on [any] 5883 ...
 
 ## TODO
 
-- extract AT response parsing into its own module, to make it usable for other devices
 - handle incoming messages
 
 ## Meta
 
 - PXT/calliope
 - PXT/microbit
+
+Depends on [pxt-calliope-modem](https://github.com/calliope-mini/pxt-calliope-modem).
 
 Author: Matthias L. Jugel ([@thinkberg](https://twitter.com/thinkberg))
 
