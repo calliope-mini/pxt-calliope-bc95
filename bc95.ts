@@ -3,14 +3,13 @@
  */
 
 //% weight=2 color=#117447 icon="\uf1d9" block="BC95"
-//% parts="bc95    
+//% parts="bc95"
 namespace bc95 {
     let SERVER: string = null;
     let PORT = 9090;
     let APN = "internet.nbiot.telekom.de";
     let USER = "";
     let PASS = "";
-    let ENCRYPTED = false;
     let ERROR = false;
 
     /**
@@ -88,31 +87,7 @@ namespace bc95 {
     }
 
     /**
-     * Send a number to the backend server. Encodes key/value as a json message.
-     */
-    //% weight=70
-    //% blockId=bc95_sendNumber block="send number message|key %key|value %n"
-    //% blockExternalInputs=1
-    //% parts="bc95"
-    export function sendNumber(key: string, value: number): void {
-        send("{\"" + key + "\":" + value + "}");
-    }
-
-    /**
-     * Send a string to the backend server. Encodes key/value as a json message.
-     */
-    //% weight=70
-    //% blockId=bc95_sendString block="send string message|key %key|value %n"
-    //% blockExternalInputs=1
-    //% parts="bc95"
-    export function sendString(key: string, value: string): void {
-        send("{\"" + key + "\":\"" + value + "\"}");
-    }
-
-    /**
-     * Send the actual message, encoded. Data is encoded in message pack format:
-     * INT[DeviceId]BYTES[Message]. The maximum message size is 504 bytes.
-     * If messages are encrypted, the key is 16 bytes: [SECRET,ID,SECRET,ID].
+     * Send the actual message via UDP.
      * @param message the message to send
      * @param receivePort the local port to receive a response
      */
@@ -128,41 +103,9 @@ namespace bc95 {
             let response = modem.sendAT("+NSOCR=DGRAM,17," + receivePort + ",1");
             if (response[response.length - 1] == "OK") {
                 let socket = response[0];
-                let packetLength = 0;
-
-                let encoded = "";
-                if (message.length < 32) {
-                    // messages shorter than 32 bytes will have a single 0xA0 + length marker byte
-                    packetLength = message.length + 1;
-                    encoded = String.fromCharCode(0xA0 + message.length);
-                } else if (message.length < 256) {
-                    // messages shorter than 255 bytes have two bytes as marker: 0xd9 and length
-                    packetLength = message.length + 2;
-                    encoded += String.fromCharCode(0xD9) + String.fromCharCode(message.length);
-                } else if (message.length < 505) {
-                    // messages shorter than 255 bytes have two bytes as marker: 0xd9 and a two byte length
-                    packetLength = message.length + 3;
-                    encoded += String.fromCharCode(0xD9) + String.fromCharCode(message.length >> 8) + String.fromCharCode(message.length & 0xff);
-                } else {
-                    // the BC95 module only supports a maximum payload of 512 bytes!
-                    ERROR = true;
-                    return;
-                }
-                // add actual message
-                encoded += message;
-
-                // encrypt message, if needed, padding w/ 0x80 and zeros
-                if (ENCRYPTED) {
-                    encoded = encrypt(encoded + String.fromCharCode(0x80));
-                    packetLength = encoded.length;
-                }
-
-                // encode the package in messagepack format
-                let header = String.fromCharCode(0xCE) + numberToString(getDeviceId(1));
-                packetLength += 5;
-
                 // send UDP packet
-                ERROR = !modem.expectOK("+NSOST=" + socket + "," + SERVER + "," + PORT + "," + (packetLength) + "," + stringToHex(header + encoded));
+                ERROR = !modem.expectOK("+NSOST=" + socket + "," + SERVER + "," + PORT + ","
+                    + (message.length) + "," + stringToHex(message));
                 // close socket
                 modem.expectOK("+NSOCL=" + socket);
             }
@@ -183,41 +126,13 @@ namespace bc95 {
         } else return true;
     }
 
-    /**
-     * Show Calliope device id and the secret for communication.
-     */
-    //% blockId=bc95_showdeviceinfo block="show device Info|on display %onDisplay"
-    //% parts="bc95"
-    //% advanced=true
-    export function showDeviceInfo(onDisplay: boolean = true): void {
-        let deviceId = numberToHex(getDeviceId(1));
-        let deviceSecret = numberToHex(getDeviceId(0));
-        modem.log("ID", deviceId);
-        modem.log("SECRET", deviceSecret);
-        if (onDisplay) basic.showString("id:" + deviceId + " secret:" + deviceSecret, 250);
-    }
-
-    /**
-     * Set encryption mode. Whether data should be AES encrypted. See #showDeviceInfo
-     * how to identify the device ID and secret.
-     * ATTENTION: Only works if BLUETOOTH is enabled!
-     * @param encrypted whether the data should be encrypted, eg: false
-     */
-    //% weight=20
-    //% blockId=bc95_setencrypted block="encrypt messages %encrypted"
-    //% advanced=true
-    //% parts="bc95"
-    export function setEncryption(encrypted: boolean = false) {
-        ENCRYPTED = encrypted;
-    }
-
     // converts a number into a readable hex-string representation
-    function numberToHex(n: number): string {
+    export function numberToHex(n: number): string {
         return stringToHex(numberToString(n));
     }
 
     // converts a number into a binary string representation
-    function numberToString(n: number): string {
+    export function numberToString(n: number): string {
         return String.fromCharCode((n >> 24) & 0xff) +
             String.fromCharCode((n >> 16) & 0xff) +
             String.fromCharCode((n >> 8) & 0xff) +
@@ -233,17 +148,5 @@ namespace bc95 {
             r = r + l.substr((c >> 4), 1) + l.substr((c & 0x0f), 1);
         }
         return r;
-    }
-
-    //% shim=bc95::getDeviceId
-    export function getDeviceId(n: number): number {
-        // dummy value for the simulator
-        return 0;
-    }
-
-    //% shim=bc95::encrypt
-    export function encrypt(data: string): string {
-        // dummy return
-        return "???";
     }
 }

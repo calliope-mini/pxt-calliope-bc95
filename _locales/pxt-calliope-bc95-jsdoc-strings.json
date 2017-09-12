@@ -6,20 +6,15 @@
   "bc95.init|param|rate": "the new baud rate, eg: BaudRate.BaudRate9600",
   "bc95.init|param|rx": "the new reception pin, eg: SerialPin.C16",
   "bc95.init|param|tx": "the new transmission pins, eg: SerialPin.C17",
-  "bc95.send": "Send the actual message, encoded. Data is encoded in message pack format:\nINT[DeviceId]BYTES[Message]. The maximum message size is 504 bytes.\nIf messages are encrypted, the key is 16 bytes: [SECRET,ID,SECRET,ID].",
-  "bc95.sendNumber": "Send a number to the backend server. Encodes key/value as a json message.",
+  "bc95.send": "Send the actual message via UDP.",
   "bc95.sendOk": "Check if the last send operation was successful.\nAlso reset the status.",
-  "bc95.sendString": "Send a string to the backend server. Encodes key/value as a json message.",
   "bc95.send|param|message": "the message to send",
   "bc95.send|param|receivePort": "the local port to receive a response",
   "bc95.setAPN": "Configure the APN to use for the NB-IoT messaging.",
   "bc95.setAPN|param|apn": "the access point name, eg: internet.nbiot.telekom.de",
   "bc95.setAPN|param|password": "a password to access the APN",
   "bc95.setAPN|param|user": "a user name to access the APN",
-  "bc95.setEncryption": "Set encryption mode. Whether data should be AES encrypted. See #showDeviceInfo\nhow to identify the device ID and secret.\nATTENTION: Only works if BLUETOOTH is enabled!",
-  "bc95.setEncryption|param|encrypted": "whether the data should be encrypted, eg: false",
   "bc95.setServer": "Configure the server to use for the NB-IoT messaging.",
   "bc95.setServer|param|host": "the IP address of a server to send messages to",
-  "bc95.setServer|param|port": "the port to send messages to, eg: 9090",
-  "bc95.showDeviceInfo": "Show Calliope device id and the secret for communication."
+  "bc95.setServer|param|port": "the port to send messages to, eg: 9090"
 }

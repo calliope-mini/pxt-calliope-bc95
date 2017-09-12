@@ -30,22 +30,8 @@ namespace test_BC95 {
 
     // initialize module
     bc95.init(SerialPin.C17, SerialPin.C16, BaudRate.BaudRate9600);
-    bc95.showDeviceInfo(false);
 
-    modem.log("!!!", "ENCRYPTION TEST");
-    // test encryption support and HW encryption
-    let encryptionSupported = true;
-    let r = bc95.encrypt("ABCDEFG0123456");
-    if (r.length) {
-        modem.log("ENCRYPTION", bc95.stringToHex(r));
-        assert("encryption", r.length > 0);
-        assert("encryption cipher", bc95.stringToHex(r) == "8FF121A1CF04911C42EF80CCF13440A5");
-    } else {
-        encryptionSupported = false;
-        modem.log("ENCRYPTION", "unsupported, enable BLE");
-    }
-
-    modem.log("!!!", "MODEM TEST");
+    modem.log("!!!! ", "BC95/AT TEST");
 
     assert("modem working",
         modem.expectOK(""));
@@ -78,32 +64,21 @@ namespace test_BC95 {
     assert("ping external server",
         modem.expectOK("+NPING=85.214.66.173"));
     assert("expect ping reply", modem.receiveResponse((line: string) => {
-            return line.length > 7 && line.substr(0, 7) == "+NPING:";
-        })[0].length != 0);
+        return line.length > 7 && line.substr(0, 7) == "+NPING:";
+    })[0].length != 0);
 
-    modem.log("!!!", "BC95 TEST");
+    modem.log("!!!! ", "BC95 TEST");
 
     // test BC95 module functionality
     bc95.setServer(SERVER, PORT);
 
-    // test encrypted
-    if (encryptionSupported) {
-        bc95.setEncryption(true);
-        bc95.sendNumber("test", 123);
-        assert("sending number (encrypted)", bc95.sendOk());
-        bc95.sendString("test", "value 123");
-        assert("sending string (encrypted)", bc95.sendOk());
-    }
-
     // loop to send some values every 10 minutes
     do {
-        // test unencrypted
-        bc95.setEncryption(false);
-        bc95.sendNumber("temp", input.temperature());
+        bc95.send("{\"temp\":" + input.temperature() + "}");
         assert("sending number (temp)", bc95.sendOk());
-        bc95.sendNumber("light", input.lightLevel());
+        bc95.send("{\"light\":" + input.lightLevel() + "}");
         assert("sending number (light)", bc95.sendOk());
-        bc95.sendString("test", "value " + input.temperature());
+        bc95.send("{\"test\":\"" + "value " + input.temperature() + "\"}");
         assert("sending string", bc95.sendOk());
         for (let i = 0; LOOP && !input.buttonIsPressed(Button.A) && i < 600; i++) {
             basic.pause(1000);
