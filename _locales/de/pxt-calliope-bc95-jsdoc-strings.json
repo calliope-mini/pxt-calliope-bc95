@@ -16,5 +16,5 @@
   "bc95.setAPN|param|user": "Benutzername",
   "bc95.setServer": "Konfiguriert die IP Adresse des Empfangsservers.",
   "bc95.setServer|param|host": "IP Adresse des Empfangsservers",
-  "bc95.setServer|param|port": "Portadresse des Empfangsservers, z.B. 9090",
+  "bc95.setServer|param|port": "Portadresse des Empfangsservers, z.B. 9090"
 }
