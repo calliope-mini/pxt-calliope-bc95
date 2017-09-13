@@ -63,7 +63,7 @@ namespace bc95 {
      * @param port the port to send messages to, eg: 9090
      */
     //% weight=80
-    //% blockId=bc95_setserver block="set server |address %host|port %port"
+    //% blockId=bc95_setserver block="set server address %host|port %port"
     //% parts="bc95"
     export function setServer(host: string, port: number): void {
         SERVER = host;
@@ -92,13 +92,12 @@ namespace bc95 {
      * @param receivePort the local port to receive a response
      */
     //% weight=60
-    //% blockId=bc95_send block="send raw message|message %message"
+    //% blockId=bc95_send block="send %message"
     //% blockExternalInputs=1
-    //% advanced=true
     //% parts="bc95"
     export function send(message: string, receivePort: number = 44567): void {
         ERROR = true;
-        if (SERVER != null && SERVER.length > 0) {
+        if (message.length > 0 && SERVER != null && SERVER.length > 0) {
             // open the socket and remember the socket number
             let response = modem.sendAT("+NSOCR=DGRAM,17," + receivePort + ",1");
             if (response[response.length - 1] == "OK") {

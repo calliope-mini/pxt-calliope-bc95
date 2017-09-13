@@ -2,7 +2,7 @@
   "bc95.attach|block": "verbinde mit NB-IoT Netzwerk|Warte (Sekunden) %tries",
   "bc95.init|block": "initialisiere BC95|TX %tx|RX %rx|mit Baudrate %rate",
   "bc95.sendOk|block": "senden erfolgreich?",
-  "bc95.send|block": "send Nachricht|message %message",
+  "bc95.send|block": "sende %message",
   "bc95.setAPN|block": "setze APN %apn|Benutzer %user|Passwort %password",
   "bc95.setServer|block": "setze Serveradresse %host|Port %port",
   "bc95|block": "BC95",
