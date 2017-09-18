@@ -1,5 +1,5 @@
 {
-  "bc95.attach|block": "verbinde mit NB-IoT Netzwerk|Warte (Sekunden) %tries",
+  "bc95.attach|block": "verbinde mit NB-IoT Netzwerk|warte (Sekunden) %tries",
   "bc95.init|block": "initialisiere BC95|TX %tx|RX %rx|mit Baudrate %rate",
   "bc95.sendOk|block": "senden erfolgreich?",
   "bc95.send|block": "sende %message",

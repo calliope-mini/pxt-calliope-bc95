@@ -29,9 +29,10 @@ namespace bc95 {
 
         // check firmware version, could not get this to work with any other
         let r = modem.sendAT("+CGMR");
-        if (!(r.length > 1 && r[r.length - 2] == "V100R100C10B656")) {
-            if(r.length > 1) basic.showString("BC95 wrong firmware: " + r[r.length - 2]);
-        }
+        // firmware check disabled! only show firmware
+        // if (!(r.length > 1 && r[r.length - 2] == "V100R100C10B656")) {
+        //     if(r.length > 1) basic.showString("BC95 wrong firmware: " + r[r.length - 2]);
+        // }
         // setup some basics
         modem.expectOK("+NCONFIG=AUTOCONNECT,TRUE");
         modem.expectOK("+NCONFIG=CR_0354_0338_SCRAMBLING,TRUE");
