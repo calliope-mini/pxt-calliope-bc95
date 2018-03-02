@@ -7,7 +7,7 @@
 namespace bc95 {
     let SERVER: string = null;
     let PORT = 9090;
-    let APN = "internet.nbiot.telekom.de";
+    let APN: string = null;
     let USER = "";
     let PASS = "";
     let ERROR = false;
@@ -51,6 +51,9 @@ namespace bc95 {
     //% parts="bc95"
     export function attach(ops: number = 26201, tries: number = 6): void {
         modem.expectOK("+CFUN=1");
+        if(APN != null) {
+            modem.expectOK("+CGDCONT=1,\"IP\",\""+APN+"\"")
+        }
         if (modem.expectOK("+COPS=1,2,\""+ops+"\"")) {
             for (let i = 0; i < tries; i++) {
                 if (modem.sendAT("+CGATT?")[0] == "+CGATT:1") break;
@@ -75,17 +78,13 @@ namespace bc95 {
     /**
      * Configure the APN to use for the NB-IoT messaging.
      * @param apn the access point name, eg: internet.nbiot.telekom.de
-     * @param user a user name to access the APN
-     * @param password a password to access the APN
      */
     //% weight=70
-    //% blockId=bc95_setapn block="set APN %apn|user %user|password %password"
+    //% blockId=bc95_setapn block="set APN %apn"
     //% blockExternalInputs=1
     //% parts="bc95"
-    export function setAPN(apn: string, user: string = null, password: string = null) {
+    export function setAPN(apn: string) {
         APN = apn;
-        if (user != null && user.length > 0) USER = user;
-        if (password != null && password.length > 0) PASS = password;
     }
 
     /**
