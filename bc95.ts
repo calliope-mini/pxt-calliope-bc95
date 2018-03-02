@@ -43,14 +43,15 @@ namespace bc95 {
      * Attach to the mobile network. May take up to 30s.
      * Waits for 1s between checks.
      * @param tries the number of tries to wait for connection, eg: 6
+     * @param ops the OPS setting, DT-DE: 26201, DT-AT: 23203, eg: 26201
      */
     //% weight=90
-    //% blockId=bc95_attach block="attach NB-IoT network|wait seconds %tries"
+    //% blockId=bc95_attach block="attach NB-IoT network|OPS %ops|wait seconds %tries"
     //% blockExternalInputs=1
     //% parts="bc95"
-    export function attach(tries: number = 6): void {
+    export function attach(ops: number = 26201, tries: number = 6): void {
         modem.expectOK("+CFUN=1");
-        if (modem.expectOK("+COPS=1,2,\"26201\"")) {
+        if (modem.expectOK("+COPS=1,2,\""+ops+"\"")) {
             for (let i = 0; i < tries; i++) {
                 if (modem.sendAT("+CGATT?")[0] == "+CGATT:1") break;
                 basic.pause(1000);
