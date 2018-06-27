@@ -1,6 +1,6 @@
 {
     "name": "pxt-calliope-bc95",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "NB-IoT BC95 Module",
     "license": "MIT",
     "dependencies": {
